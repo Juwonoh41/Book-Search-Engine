@@ -36,6 +36,23 @@ const resolvers = {
             }
             throw new AuthenticationError('Login first');
           },
+          login: async (parent, { email, password }) => {
+            const user = await User.findOne({ email });
+            if (!user) {
+              throw new AuthenticationError('Wrong');
+            }
+            const correctPw = await user.isCorrectPassword(password);
+            if (!correctPw) {
+              throw new AuthenticationError('Wrong');
+            }
+            const token = signToken(user);
+            return { token, user };
+          },
+          addUser: async (parent, args) => {
+            const user = await User.create(args);
+            const token = signToken(user);
+            return { token, user };
+          }
 
       }
 }
